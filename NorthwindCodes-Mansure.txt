@@ -1,0 +1,75 @@
+LOAD CSV WITH HEADERS FROM 'file:///suburb.csv'AS row RETURN (row);
+CREATE CONSTRAINT ON (s:suburb) ASSERT s.SuburbID IS UNIQUE;
+LOAD CSV WITH HEADERS FROM 'file:///suburb.csv' AS row MERGE (s:suburb{SuburbID:row.SuburbID}) ON CREATE SET  s.SuburbID=row.SuburbID,s.LgaID=row.LgaID,s.Suburb=row.Suburb,s.Postcode=row.Postcode;
+MATCH (s:suburb) RETURN (s);
+
+
+LOAD CSV WITH HEADERS FROM 'file:///region.csv'AS row RETURN (row);
+CREATE CONSTRAINT ON (r:region) ASSERT r.RegionID IS UNIQUE;
+LOAD CSV WITH HEADERS FROM 'file:///region.csv' AS row MERGE (r:region{RegionID:row.RegionID}) ON CREATE SET  r.RegionID=row.RegionID,r.Region=row.Region;
+MATCH (r:region) RETURN (r);
+
+
+LOAD CSV WITH HEADERS FROM 'file:///lga.csv'AS row RETURN (row);
+CREATE CONSTRAINT ON (l:lga) ASSERT l.LgaID IS UNIQUE;
+LOAD CSV WITH HEADERS FROM 'file:///lga.csv' AS row MERGE (l:lga{LgaID:row.LgaID}) ON CREATE SET  l.LgaID=row.LgaID,l.RegionID=row.RegionID,l.Lga=row.Lga;
+MATCH (l:lga) RETURN (l);
+
+
+
+:param relType => ("HOLDS");
+:param properties => null;
+MATCH (r:region), (l:lga)
+WHERE (l.RegionID = r.RegionID)
+CALL apoc.create.relationship (r, $relType, $properties, l)
+YIELD rel
+RETURN rel;
+
+
+
+:param relType => ("GOVERNS");
+:param properties => null;
+MATCH (s:suburb), (l:lga)
+WHERE (l.LgaID = s.LgaID)
+CALL apoc.create.relationship (l, $relType, $properties, s)
+YIELD rel
+RETURN rel;
+
+---new5november
+
+
+LOAD CSV WITH HEADERS FROM 'file:///restarea.csv'AS row RETURN (row);
+CREATE CONSTRAINT ON (rest:restarea) ASSERT rest.RestAreaNumber IS UNIQUE;
+LOAD CSV WITH HEADERS FROM 'file:///restarea.csv' AS row MERGE (rest:restarea{RestAreaNumber:row.RestAreaNumber}) ON CREATE SET rest.RestAreaNumber=row.RestAreaNumber,rest.RestAreaName=row.RestAreaName,rest.CategoryID=row.CategoryID,rest.SuburbID=row.SuburbID,rest.Description=row.Description,rest.DistanceFrom=row.DistanceFrom,rest.RoadNumber=row.RoadNumber,rest.RoadName=row.RoadName,rest.Latitude=row.Latitude,rest.Longitude=row.Longitude,rest.Accessible=row.Accessible,rest.BabyChangeFacilities=row.BabyChangeFacilitie,rest.Bbq=row.Bbq,rest.BoatRamp=row.BoatRamp,rest.CaravanDisposal=row.CaravanDisposal,rest.DriverReviver=row.DriverReviver,rest.EmergencyPhones=row.EmergencyPhones,rest.FoodAvailable=row.FoodAvailable,rest.FuelAvailable=row.FuelAvailable,rest.LitterBins=row.LitterBins,rest.Lighting=row.Lighting,rest.Lookout=row.Lookout,rest.PetsAllowed=row.PetsAllowed,rest.PicnicTable=row.PicnicTable,rest.Playground=row.Playground,rest.PowerOutlets=row.PowerOutlets,rest.PowerSupply=row.PowerSupply,rest.Shade=row.Shade,rest.Shelter=row.Shelter,rest.SideOfRoad=row.SideOfRoad,rest.SiteStatus=row.SiteStatus,rest.SportGround=row.SportGround,rest.Toilets=row.Toilets,rest.TouristInformation=row.TouristInformation,rest.TreeShading=row.TreeShading,rest.VehicleType=row.VehicleType,rest.WaterSupplyType=row.WaterSupplyType,rest.ResponsibleAuthority=row.ResponsibleAuthority;
+
+MATCH (rest:restarea) RETURN (rest);
+
+
+
+LOAD CSV WITH HEADERS FROM 'file:///restarea_category.csv'AS row RETURN (row);
+CREATE CONSTRAINT ON (rc:restarea_category) ASSERT rc.CategoryID IS UNIQUE;
+LOAD CSV WITH HEADERS FROM 'file:///restarea_category.csv' AS row MERGE (rc:restarea_category{CategoryID:row.CategoryID}) ON CREATE SET  rc.CategoryID=row.CategoryID,rc.CategoryName=row.CategoryName;
+MATCH (rc:restarea_category) RETURN (rc);
+
+
+
+:param relType => ("CATEGORIZED-IN");
+:param properties => null;
+MATCH (rc:restarea_category), (rest:restarea)
+WHERE (rc.CategoryID = rest.CategoryID)
+CALL apoc.create.relationship (rest, $relType, $properties, rc)
+YIELD rel
+RETURN rel;
+
+
+:param relType => ("HAS");
+:param properties => null;
+MATCH (s:suburb), (rest:restarea)
+WHERE (s.SuburbID = rest.SuburbID)
+CALL apoc.create.relationship (s, $relType, $properties, rest)
+YIELD rel
+RETURN rel;
+
+
+----------------------------------------------------------------------------------------
+
