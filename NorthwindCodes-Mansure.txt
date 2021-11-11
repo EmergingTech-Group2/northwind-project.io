@@ -73,3 +73,13 @@ RETURN rel;
 
 ----------------------------------------------------------------------------------------
 
+CREATE INDEX ON:restarea_category (CategoryName);
+
+CREATE INDEX ON:suburb (Suburb);
+
+CREATE INDEX ON:region (Region);
+
+CREATE INDEX ON:lga (Lga);
+
+CREATE INDEX ON:restarea (RestAreaName);
+
